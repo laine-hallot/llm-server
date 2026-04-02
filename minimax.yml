@@ -1,0 +1,29 @@
+services:
+  llamacpp-minimax:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities:
+                - gpu
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    restart: unless-stopped
+    ports:
+      - 8084:8080
+    volumes:
+      - /home/laineh/models:/models
+    command: --model /models/MiniMax-2.5-IQ4XS/MiniMax-M2.5-IQ4_XS-00001-of-00004.gguf
+            --alias minimax
+            --host 0.0.0.0
+            --port 8080
+            --ctx-size 32768
+            --flash-attn on
+            --temp 1.0
+            --top-p 1.0
+            --top-k 0
+            --n-gpu-layers 5
+    networks:
+      - lalamos-net
+

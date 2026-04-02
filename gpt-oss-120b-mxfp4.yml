@@ -1,0 +1,32 @@
+services:
+  llamacpp:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities:
+                - gpu
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    volumes:
+      - /home/laineh/models:/models
+    command: --model /models/openai_gpt-oss-120b-GGUF-MXFP4/openai_gpt-oss-120b-MXFP4.gguf
+            --alias chatgpt
+            --host 0.0.0.0
+            --port 8080
+            --jinja
+            --reasoning-format none
+            --ctx-size 32768
+            --n-cpu-moe 36
+            --flash-attn on
+            --temp 1.0
+            --top-p 1.0
+            --top-k 0
+            --n-gpu-layers 999
+    networks:
+      - lalamos-net
+

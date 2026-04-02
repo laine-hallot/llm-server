@@ -1,0 +1,63 @@
+name: sheska-llm
+services:
+  openwebui:
+    restart: unless-stopped
+    image: ghcr.io/open-webui/open-webui:main-slim
+    ports:
+      - "3000:8080"
+    volumes:
+      - open-webui:/app/backend/data
+    networks:
+      - lalamos-net
+      - scrape-net
+  firecrawl-db:
+    restart: unless-stopped
+    image: nuq-postgress
+    build:
+      ./external/firecrawl/apps/nuq-postgres
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+    networks:
+      - scrape-net
+    hostname: firecrawl-db
+    volumes:
+      - nuq-data:/var/lib/postgresql/data
+  firecrawl-redis:
+    restart: unless-stopped
+    image: sheska-llm/redis
+    build:
+      context: ./external/firecrawl/apps/redis
+      args:
+        REDIS_VERSION: latest
+    networks:
+      - scrape-net
+    hostname: firecrawl-redis
+    volumes:
+      - redis_server:/data:rw
+    user: root
+    #command: sleep 1000000
+  firecrawl-api:
+    restart: unless-stopped
+    image: sheska-llm/firecrawl-api
+    build:
+      #./docker-images/firecrawl-api
+      context: ./external/firecrawl/apps/api
+    ports:
+      - "3002:3002"
+    networks:
+      - scrape-net
+    volumes:
+      - type: bind
+        source: ./external/firecrawl/apps/api/.env
+        target: /app/.env
+    #command: sleep 1000000
+volumes:
+  open-webui:
+  nuq-data:
+  redis_server:
+
+networks:
+  lalamos-net:
+  scrape-net:
