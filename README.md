@@ -1,4 +1,4 @@
-# llm-box
+# llm-server
 This repo is just a handful of docker files that describe a basic LLM server setup. There's nothing special going on here, I just wanted a way to track my configuration.
 
 ## Whats included here exactly?
