@@ -51,6 +51,33 @@ services:
       - type: bind
         source: ./external/firecrawl/apps/api/.env
         target: /app/.env
+
+# KOKORO TEXT TO SPEACH
+  kokoro-tts:
+    restart: unless-stopped
+    image: ghcr.io/remsky/kokoro-fastapi-gpu:latest
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities:
+                - gpu
+    ports:
+      - "8880:8880"
+    environment:
+      - USE_GPU=true
+      - PYTHONUNBUFFERED=1
+      - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+    networks:
+      - lalamos-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 # LLAMA.CPP SERVER
   llamacpp-multi-model:
     deploy:
